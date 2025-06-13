@@ -1,0 +1,156 @@
+// /app/employees/components/EmployeeForm.js
+import { useState } from "react";
+import RoleSelector from "./RoleSelector";
+
+export default function EmployeeForm({
+  initialData = {},
+  onSubmit,
+  error,
+  isEdit = false,
+}) {
+  const [form, setForm] = useState({
+    firstName: initialData.firstName || "",
+    lastName: initialData.lastName || "",
+    email: initialData.email || "",
+    phone: initialData.phone || "",
+    role: initialData.role || "employee",
+    specialization: initialData.specialization || "",
+    hireDate: initialData.hireDate ? initialData.hireDate.slice(0, 10) : "",
+    isActive: initialData.isActive !== undefined ? initialData.isActive : true,
+    permissions: initialData.permissions || [],
+    ...(isEdit ? {} : { password: "" }),
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handlePermissionsChange = (permissions) => {
+    setForm((prev) => ({ ...prev, permissions }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded shadow"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block mb-1">Imię</label>
+          <input
+            name="firstName"
+            value={form.firstName}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <div>
+          <label className="block mb-1">Nazwisko</label>
+          <input
+            name="lastName"
+            value={form.lastName}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block mb-1">Email</label>
+        <input
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1">Telefon</label>
+        <input
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      {!isEdit && (
+        <div>
+          <label className="block mb-1">Hasło</label>
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      )}
+
+      <div>
+        <label className="block mb-1">Specjalizacja</label>
+        <input
+          name="specialization"
+          value={form.specialization}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1">Data zatrudnienia</label>
+        <input
+          name="hireDate"
+          type="date"
+          value={form.hireDate}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <RoleSelector
+        selectedRole={form.role}
+        selectedPermissions={form.permissions}
+        onRoleChange={(role) => setForm((prev) => ({ ...prev, role }))}
+        onPermissionsChange={handlePermissionsChange}
+      />
+
+      <div>
+        <label className="inline-flex items-center">
+          <input
+            type="checkbox"
+            name="isActive"
+            checked={form.isActive}
+            onChange={handleChange}
+            className="mr-2"
+          />
+          Konto aktywne
+        </label>
+      </div>
+
+      {error && <div className="text-red-600">{error}</div>}
+
+      <button
+        type="submit"
+        className="w-full bg-primary text-white py-2 rounded hover:bg-primary-dark transition"
+      >
+        {isEdit ? "Aktualizuj pracownika" : "Dodaj pracownika"}
+      </button>
+    </form>
+  );
+}
